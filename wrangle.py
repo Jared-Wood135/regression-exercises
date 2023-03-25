@@ -5,7 +5,9 @@
 '''
 1. Orientation
 2. Imports
-3. 
+3. acquire
+4. prepare
+5. wrangle
 '''
 
 # =======================================================================================================
@@ -30,15 +32,44 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+import env
 
 # =======================================================================================================
 # Imports END
-# Imports TO 
-#  START
+# Imports TO acquire
+# acquire START
 # =======================================================================================================
 
-def func():
+def acquire():
     '''
-    Docstring here
+    Obtains the vanilla version of zillow dataframe
     '''
-    print('placeholder')
+    query = '''
+    SELECT 
+        bedroomcnt,
+        bathroomcnt,
+        calculatedfinishedsquarefeet,
+        taxvaluedollarcnt,
+        yearbuilt,
+        taxamount,
+        fips
+    FROM 
+        properties_2017 
+    WHERE
+        propertylandusetypeid = 261'''
+    url = env.get_db_url('zillow')
+    zillow = pd.read_sql(query, url)
+    return zillow
+
+# =======================================================================================================
+# acquire END
+# acquire TO prepare
+# prepare START
+# =======================================================================================================
+
+def prepare():
+    '''
+    Takes in the vanilla zillow dataframe and returns a cleaned version that is ready for exploration
+    and further analysis
+    '''
+    zillow = acquire()
