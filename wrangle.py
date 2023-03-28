@@ -9,6 +9,7 @@
 4. prepare
 5. wrangle_zillow
 6. split
+7. remove_outliers
 '''
 
 # =======================================================================================================
@@ -55,11 +56,13 @@ def acquire():
         taxvaluedollarcnt,
         yearbuilt,
         taxamount,
-        fips
+        fips,
+        propertylandusedesc
     FROM 
-        properties_2017 
+        properties_2017
+        LEFT JOIN propertylandusetype USING(propertylandusetypeid)
     WHERE
-        propertylandusetypeid = 261'''
+        propertylandusetypeid = 261 OR propertylandusetypeid = 279'''
     url = env.get_db_url('zillow')
     zillow = pd.read_sql(query, url)
     return zillow
@@ -94,6 +97,12 @@ def prepare():
     zillow.county = np.where(zillow.county == '6111.0', 'Ventura', zillow.county)
     dummies = pd.get_dummies(zillow.drop(columns='state').select_dtypes(include='object'))
     zillow = pd.concat([zillow, dummies], axis=1)
+    outlier_cols = ['bedroomcnt',
+                    'bathroomcnt',
+                    'sqrft',
+                    'assessedvalue',
+                    'taxamount']
+    zillow = remove_outliers(zillow, outlier_cols)
     return zillow
 
 # =======================================================================================================
@@ -131,4 +140,25 @@ def split(df):
 
 # =======================================================================================================
 # split END
+# split TO remove_outliers
+# remove_outliers START
+# =======================================================================================================
+
+def remove_outliers(df, col_list, k=1.5):
+    '''
+    remove outliers from a dataframe based on a list of columns using the tukey method
+    returns a single dataframe with outliers removed
+    '''
+    col_qs = {}
+    for col in col_list:
+        col_qs[col] = q1, q3 = df[col].quantile([0.25, 0.75])
+    for col in col_list:
+        iqr = col_qs[col][0.75] - col_qs[col][0.25]
+        lower_fence = col_qs[col][0.25] - (k*iqr)
+        upper_fence = col_qs[col][0.75] + (k*iqr)
+        df = df[(df[col] > lower_fence) & (df[col] < upper_fence)]
+    return df
+
+# =======================================================================================================
+# remove_outliers END
 # =======================================================================================================
