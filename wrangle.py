@@ -84,7 +84,16 @@ def prepare():
     zillow.yearbuilt = zillow.yearbuilt.fillna(1955)
     zillow.yearbuilt = zillow.yearbuilt.astype(int)
     zillow.taxamount = zillow.taxamount.fillna(5634.87)
-    zillow.fips = zillow.fips.astype(int).astype(object)
+    zillow['state'] = 'California'
+    zillow = zillow.rename(columns={'fips' : 'county', 
+                                    'calculatedfinishedsquarefeet' : 'sqrft', 
+                                    'taxvaluedollarcnt' : 'assessedvalue',
+                                    })
+    zillow.county = np.where(zillow.county == 6037, 'Los Angeles', zillow.county)
+    zillow.county = np.where(zillow.county == '6059.0', 'Orange', zillow.county)
+    zillow.county = np.where(zillow.county == '6111.0', 'Ventura', zillow.county)
+    dummies = pd.get_dummies(zillow.drop(columns='state').select_dtypes(include='object'))
+    zillow = pd.concat([zillow, dummies], axis=1)
     return zillow
 
 # =======================================================================================================
