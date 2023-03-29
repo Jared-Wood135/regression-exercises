@@ -10,6 +10,7 @@
 5. wrangle_zillow
 6. split
 7. remove_outliers
+8. scale
 '''
 
 # =======================================================================================================
@@ -35,6 +36,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 from sklearn.model_selection import train_test_split
+import sklearn.preprocessing
 import os
 import env
 
@@ -75,8 +77,8 @@ def acquire():
 
 def prepare():
     '''
-    Takes in the vanilla zillow dataframe and returns a cleaned version that is ready for exploration
-    and further analysis
+    Takes in the vanilla zillow dataframe and returns a cleaned version that is then split into a
+    train, validate, test
     '''
     zillow = acquire()
     zillow.bedroomcnt = zillow.bedroomcnt.fillna(3.0)
@@ -95,8 +97,9 @@ def prepare():
     zillow.county = np.where(zillow.county == 6037, 'Los Angeles', zillow.county)
     zillow.county = np.where(zillow.county == '6059.0', 'Orange', zillow.county)
     zillow.county = np.where(zillow.county == '6111.0', 'Ventura', zillow.county)
-    dummies = pd.get_dummies(zillow.drop(columns='state').select_dtypes(include='object'))
+    dummies = pd.get_dummies(zillow.select_dtypes(include='object'))
     zillow = pd.concat([zillow, dummies], axis=1)
+    zillow = zillow.drop(columns=['county', 'propertylandusedesc', 'state'])
     outlier_cols = ['bedroomcnt',
                     'bathroomcnt',
                     'sqrft',
@@ -116,11 +119,15 @@ def wrangle_zillow():
     Function that acquires and prepares the zillow dataframe for use as well as creating a csv.
     '''
     if os.path.exists('zillow.csv'):
-        return pd.read_csv('zillow.csv', index_col=0)
+        zillow = pd.read_csv('zillow.csv', index_col=0)
+        train, validate, test = split(zillow)
+        return train, validate, test
     else:
         zillow = prepare()
         zillow.to_csv('zillow.csv')
-        return pd.read_csv('zillow.csv', index_col=0)
+        zillow = pd.read_csv('zillow.csv', index_col=0)
+        train, validate, test = split(zillow)
+        return train, validate, test
     
 # =======================================================================================================
 # wrangle_zillow END
@@ -161,4 +168,29 @@ def remove_outliers(df, col_list, k=1.5):
 
 # =======================================================================================================
 # remove_outliers END
+# remove_outliers TO scale
+# scale START
+# =======================================================================================================
+
+def scale(train, validate, test):
+    '''
+    Takes in a train, validate, test and returns the dataframes,
+    but scaled using the 'StandardScaler()'
+    '''
+    scale_cols = ['bedroomcnt',
+              'bathroomcnt',
+              'sqrft',
+              'yearbuilt',
+              'taxamount']
+    scaler = sklearn.preprocessing.StandardScaler()
+    scaler.fit(train[scale_cols])
+    train[scale_cols] = scaler.transform(train[scale_cols])
+    scaler.fit(validate[scale_cols])
+    validate[scale_cols] = scaler.transform(validate[scale_cols])
+    scaler.fit(test[scale_cols])
+    test[scale_cols] = scaler.transform(test[scale_cols])
+    return train, validate, test
+
+# =======================================================================================================
+# scale END
 # =======================================================================================================
