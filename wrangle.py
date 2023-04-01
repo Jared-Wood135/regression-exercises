@@ -180,7 +180,6 @@ def scale(train, validate, test):
     scale_cols = ['bedroomcnt',
               'bathroomcnt',
               'sqrft',
-              'yearbuilt',
               'taxamount']
     scaler = sklearn.preprocessing.StandardScaler()
     scaler.fit(train[scale_cols])
