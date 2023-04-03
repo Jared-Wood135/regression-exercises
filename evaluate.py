@@ -80,9 +80,7 @@ def get_eval_stats(df, actual_col, baseline_col, prediction_col):
     RMSE_base = MSE_base ** .5
     RMSE_pred = MSE_pred ** .5
     RMSE_diff = int(RMSE_pred - RMSE_base)
-    R2_base = 1 - (SSE_base/TSS_base)
     R2_pred = 1 - (SSE_pred/SSE_base)
-    R2_diff = R2_pred - R2_base
     print(f'\033[35m===== {baseline_col} =====\033[0m\n\033[32mSSE:\033[0m {SSE_base:.2f}\n\033[32mESS:\033[0m {ESS_base:.2f}\n\033[32mTSS:\033[0m {TSS_base:.2f}\n\033[32mMSE:\033[0m {MSE_base:.2f}\n\033[32mRMSE:\033[0m {RMSE_base:.2f}\n')
     print(f'\033[35m===== {prediction_col} =====\033[0m\n\033[32mSSE:\033[0m {SSE_pred:.2f}\n\033[32mESS:\033[0m {ESS_pred:.2f}\n\033[32mTSS:\033[0m {TSS_pred:.2f}\n\033[32mMSE:\033[0m {MSE_pred:.2f}\n\033[32mRMSE:\033[0m {RMSE_pred:.2f}\n\033[32mR2:\033[0m {R2_pred:.2f}\n')
     print(f'\033[35m===== {prediction_col} - {baseline_col} =====\033[0m\n\033[32mSSE:\033[0m {SSE_diff:.2f}\n\033[32mESS:\033[0m {ESS_diff:.2f}\n\033[32mTSS:\033[0m {TSS_diff:.2f}\n\033[32mMSE:\033[0m {MSE_diff:.2f}\n\033[32mRMSE:\033[0m {RMSE_diff:.2f}\n')
