@@ -11,6 +11,7 @@
 6. split
 7. remove_outliers
 8. scale
+9. 
 '''
 
 # =======================================================================================================
@@ -192,4 +193,34 @@ def scale(train, validate, test):
 
 # =======================================================================================================
 # scale END
+# scale TO sample_dataframe
+# sample_dataframe START
+# =======================================================================================================
+
+def sample_dataframe(train, validate, test):
+    '''
+    Takes train, validate, test dataframes and reduces the shape to no more than 1000 rows by taking
+    the percentage of 1000/len(train) then applying that to train, validate, test dataframes.
+
+    INPUT:
+    train = Split dataframe for training
+    validate = Split dataframe for validation
+    test = Split dataframe for testing
+
+    OUTPUT:
+    train_sample = Reduced size of original split dataframe of no more than 1000 rows
+    validate_sample = Reduced size of original split dataframe of no more than 1000 rows
+    test_sample = Reduced size of original split dataframe of no more than 1000 rows
+    '''
+    ratio = 1000/len(train)
+    train_samples = int(ratio * len(train))
+    validate_samples = int(ratio * len(validate))
+    test_samples = int(ratio * len(test))
+    train_sample = train.sample(train_samples)
+    validate_sample = validate.sample(validate_samples)
+    test_sample = test.sample(test_samples)
+    return train_sample, validate_sample, test_sample
+
+# =======================================================================================================
+# sample_dataframe END
 # =======================================================================================================
