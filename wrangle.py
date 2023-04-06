@@ -173,7 +173,7 @@ def remove_outliers(df, col_list, k=1.5):
 # scale START
 # =======================================================================================================
 
-def scale(train, validate, test, cols):
+def scale(train, validate, test, cols, scaler):
     '''
     Takes in a train, validate, test and returns the dataframes,
     but scaled using the 'StandardScaler()'
@@ -182,7 +182,7 @@ def scale(train, validate, test, cols):
     original_validate = validate.copy()
     original_test = test.copy()
     scale_cols = cols
-    scaler = sklearn.preprocessing.StandardScaler()
+    scaler = scaler
     scaler.fit(original_train[scale_cols])
     original_train[scale_cols] = scaler.transform(original_train[scale_cols])
     scaler.fit(original_validate[scale_cols])
